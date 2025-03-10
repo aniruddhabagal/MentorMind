@@ -14,19 +14,23 @@ class TutorAssistant:
         try:
             student_profile = state.get("student_profile", {})
             messages = state.get("messages", [])
-            # Extract the latest user message as 'input'
             input_message = next((msg[1] for msg in messages[::-1] if msg[0] == "user"), "")
+            
+            # If no phase-specific action is needed, just pass through
+            if not input_message or state.get("tutor_responded", False):
+                return state
             
             prompt_state = {
                 **state,
-                "student_grade_level": student_profile.get("grade_level", 8),
+                "student_grade_level": student_profile.get("grade", 8),
                 "learning_style": student_profile.get("learning_style", "visual"),
                 "strengths": student_profile.get("strengths", []),
-                "areas_for_improvement": student_profile.get("areas_for_improvement", []),
-                "input": input_message  # Explicitly add the user message as 'input'
+                "areas_for_improvement": state.get("areas_for_improvement", []),
+                "input": input_message
             }
             
             result = self.runnable.invoke(prompt_state)
+            logger.debug(f"Raw LLM result: {result}")
             
             if isinstance(result, AIMessage):
                 messages = state["messages"] + [result]
@@ -39,16 +43,10 @@ class TutorAssistant:
                 message = ("assistant", content)
                 messages = state["messages"] + [message]
             
-            logger.debug(f"Output state: {{'messages': {messages}, 'tutor_responded': True}}")
-            return {
-                "messages": messages,
-                "tutor_responded": True
-            }
+            updated_state = {"messages": messages, "tutor_responded": True}
+            return {**state, **updated_state}
+            
         except Exception as e:
             error_message = f"Error processing request: {str(e)}"
             message = ("assistant", error_message)
-            logger.debug(f"Output state: {{'messages': {state['messages'] + [message]}, 'tutor_responded': True}}")
-            return {
-                "messages": state["messages"] + [message],
-                "tutor_responded": True
-            }
+            return {**state, "messages": state["messages"] + [message], "tutor_responded": True}

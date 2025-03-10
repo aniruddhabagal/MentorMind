@@ -21,12 +21,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 def tutor_routing_condition(state):
-    """Combined routing logic for tools, termination, and learning phases."""
     logger.debug(f"Evaluating state: {state}")
     messages = state.get("messages", [])
     
     if not messages:
-        return END
+        return "concept_introduction"  # Start at introduction
     
     last_message = messages[-1]
     
@@ -38,11 +37,11 @@ def tutor_routing_condition(state):
         if isinstance(content, dict) and content.get("tool_calls"):
             return "tools"
     
-    # Stop if tutor has responded
-    if state.get("tutor_responded", False):
+    # Stop if tutor has responded and no user input is pending
+    if state.get("tutor_responded", False) and not any(msg[0] == "user" for msg in messages[-1:]):
         return END
     
-    # Route based on learning phase if no tools or response yet
+    # Route based on learning phase
     return state.get("learning_phase", "introduction")
 
 def build_tutor_graph(llm=None):
@@ -75,13 +74,12 @@ def build_tutor_graph(llm=None):
     
     builder.set_entry_point("tutor")
     
-    # Single conditional edge handling all cases
     builder.add_conditional_edges(
         "tutor",
         tutor_routing_condition,
         {
             "tools": "tools",
-            END: "__end__",  # Terminate when tutor_responded is True
+            END: "__end__",
             "introduction": "concept_introduction",
             "practice": "practice_session",
             "assessment": "assessment",
@@ -89,7 +87,6 @@ def build_tutor_graph(llm=None):
         }
     )
     
-    # Define edges back to tutor or other nodes
     builder.add_edge("tools", "tutor")
     builder.add_edge("concept_introduction", "tutor")
     builder.add_edge("practice_session", "tutor")
