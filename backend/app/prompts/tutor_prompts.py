@@ -1,4 +1,4 @@
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 tutor_system_prompt = """
 You are an adaptive AI tutor designed to provide personalized education across multiple subjects.
@@ -27,6 +27,7 @@ def create_tutor_prompt():
     return ChatPromptTemplate.from_messages(
         [
             ("system", tutor_system_prompt),
-            ("placeholder", "{messages}"),
+            MessagesPlaceholder(variable_name="messages"),
+            ("human", "{input}")
         ]
     )
