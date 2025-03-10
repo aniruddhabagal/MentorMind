@@ -1,0 +1,46 @@
+# Ignore Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+env/
+.env
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# Ignore dependency and package files
+*.egg-info/
+dist/
+build/
+
+# Jupyter Notebook checkpoints (if any)
+.ipynb_checkpoints/
+
+# Ignore AWS credentials or environment files
+.env
+*.env
+
+# Ignore IDE/editor-specific files
+.vscode/
+.idea/
+*.iml
+
+# Ignore cache and generated files
+*.cache
+*.pytest_cache/
+*.mypy_cache/
+
+# Ignore coverage and testing reports
+.coverage
+htmlcov/
+nosetests.xml
+coverage.xml
+
+# Ignore example session outputs
+examples/*.out
+examples/*.log
