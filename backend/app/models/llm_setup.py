@@ -1,6 +1,6 @@
 import google.generativeai as genai
-from langchain_community.llms import GoogleGenerativeAI
-from langchain_core.language_models import ChatGoogleGenerativeAI
+# from langchain_community.llms import GoogleGenerativeAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from ..config import GEMINI_API_KEY, MODEL_NAME, DEFAULT_TEMPERATURE
 
 def initialize_gemini():
@@ -15,6 +15,7 @@ def create_gemini_llm(temperature=DEFAULT_TEMPERATURE):
     
     # Return the LangChain compatible model
     return ChatGoogleGenerativeAI(
+        api_key=GEMINI_API_KEY,
         model=MODEL_NAME,
         temperature=temperature,
         convert_system_message_to_human=True  # Gemini handles system prompts differently

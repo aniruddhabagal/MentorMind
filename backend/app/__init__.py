@@ -1,0 +1,3 @@
+"""
+AI Tutor application package.
+"""
